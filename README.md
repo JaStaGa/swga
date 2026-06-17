@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# SWGA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SWGA, or Simple Word Game App, is a progressive word-guessing game built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+Players begin by guessing a one-letter word. Each successfully completed round increases the answer length by one letter. A run continues until the player fails a round or completes the 20-letter round.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Current Status
 
-## React Compiler
+SWGA is currently in the rules, project setup, and data-preparation stage.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Completed so far:
 
-## Expanding the ESLint configuration
+* Core game terminology defined
+* Six-guess rule defined
+* Maximum answer length set to 20 letters
+* React, TypeScript, and Vite project created
+* GitHub repository created
+* Initial source folders established
+* Development roadmap added
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Scoring is still being finalized before implementation begins.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Planned Gameplay
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+* Six guesses per round
+* Green feedback for a correct letter in the correct position
+* Yellow feedback for a correct letter in the wrong position
+* Absent-letter feedback for letters not used in the answer
+* Increasing word length after each successful round
+* Score based on the number of guesses required
+* Practice and ranked modes
+* Local statistics and online leaderboards
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Technology
+
+* React
+* TypeScript
+* Vite
+* CSS
+* Browser local storage
+* A backend and database planned for later phases
+
+## Project Structure
+
+```text
+src/
+├── components/    Reusable interface components
+├── data/          Word lists and static game data
+├── game-logic/    Guess evaluation, scoring, and progression
+├── tests/         Game-logic and interface tests
+├── App.tsx
+├── App.css
+├── index.css
+└── main.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Local Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Install the project dependencies:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+## Roadmap
+
+See [ROADMAP.md](./ROADMAP.md) for the planned development phases and current progress.
