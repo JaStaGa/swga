@@ -17,7 +17,7 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 * [x] Create the local project and GitHub repository
 * [x] Establish the component, game-logic, data, and test folders
 * [x] Add the project roadmap
-* [ ] Replace the default Vite README
+* [x] Replace the default Vite README
 * [ ] Add answer pools for word lengths 1–20
 * [ ] Add a larger accepted-guess dictionary
 * [ ] Validate and clean all word data
