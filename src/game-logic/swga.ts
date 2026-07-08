@@ -1,4 +1,21 @@
 export type GuessFeedback = "green" | "yellow" | "red";
+export type RunStatus = "playing" | "lost" | "completed";
+
+export interface SubmittedGuess {
+  guess: string;
+  feedback: GuessFeedback[];
+  guessNumber: number;
+  score: number;
+}
+
+export interface RunState {
+  currentRound: number;
+  currentWordLength: number;
+  currentAnswer: string;
+  guesses: SubmittedGuess[];
+  totalScore: number;
+  status: RunStatus;
+}
 
 function normalizeGuess(guess: string): string {
   return guess.toLowerCase();
@@ -78,4 +95,114 @@ export function isValidAcceptedGuess(
   return acceptedGuesses.some(
     (acceptedGuess) => normalizeGuess(acceptedGuess) === normalizeGuess(guess),
   );
+}
+
+export function createInitialRunState(answer: string): RunState {
+  const normalizedAnswer = normalizeGuess(answer);
+
+  if (normalizedAnswer.length !== 1) {
+    throw new Error("Initial run answer must be exactly 1 letter long.");
+  }
+
+  return {
+    currentRound: 1,
+    currentWordLength: normalizedAnswer.length,
+    currentAnswer: normalizedAnswer,
+    guesses: [],
+    totalScore: 0,
+    status: "playing",
+  };
+}
+
+export function canSubmitGuess(state: RunState): boolean {
+  return state.status === "playing" && state.guesses.length < 6;
+}
+
+export function hasRoundEnded(state: RunState): boolean {
+  return state.status !== "playing" || state.guesses.length >= 6;
+}
+
+export function submitGuess(
+  state: RunState,
+  guess: string,
+  acceptedGuesses: readonly string[],
+  nextAnswer?: string,
+): RunState {
+  if (!canSubmitGuess(state)) {
+    return state;
+  }
+
+  const isValidGuess =
+    isValidGuessFormat(guess, state.currentWordLength) &&
+    isValidAcceptedGuess(guess, acceptedGuesses);
+
+  if (!isValidGuess) {
+    return state;
+  }
+
+  const guessNumber = state.guesses.length + 1;
+  const normalizedGuess = normalizeGuess(guess);
+  const feedback = evaluateGuess(normalizedGuess, state.currentAnswer);
+  const isCorrect = isCorrectGuess(normalizedGuess, state.currentAnswer);
+  const roundScore = calculateRoundScore(guessNumber) ?? 0;
+
+  if (isCorrect && state.currentRound < 20) {
+    if (nextAnswer === undefined) {
+      throw new Error("nextAnswer is required to advance to the next round");
+    }
+
+    const expectedLength = state.currentRound + 1;
+    const normalizedNextAnswer = normalizeGuess(nextAnswer);
+
+    if (normalizedNextAnswer.length !== expectedLength) {
+      throw new Error(
+        `nextAnswer must have length ${expectedLength} for round ${state.currentRound + 1}`,
+      );
+    }
+  }
+  const score = isCorrect ? roundScore : 0;
+  const submittedGuess: SubmittedGuess = {
+    guess: normalizedGuess,
+    feedback,
+    guessNumber,
+    score,
+  };
+
+  const updatedGuesses = [...state.guesses, submittedGuess];
+  const updatedScore = state.totalScore + score;
+
+  if (isCorrect) {
+    if (state.currentRound >= 20) {
+      return {
+        ...state,
+        guesses: updatedGuesses,
+        totalScore: updatedScore,
+        status: "completed",
+      };
+    }
+
+    return {
+      currentRound: state.currentRound + 1,
+      currentWordLength: normalizeGuess(nextAnswer ?? "").length,
+      currentAnswer: normalizeGuess(nextAnswer ?? ""),
+      guesses: [],
+      totalScore: updatedScore,
+      status: "playing",
+    };
+  }
+
+  if (updatedGuesses.length >= 6) {
+    return {
+      ...state,
+      guesses: updatedGuesses,
+      totalScore: updatedScore,
+      status: "lost",
+    };
+  }
+
+  return {
+    ...state,
+    guesses: updatedGuesses,
+    totalScore: updatedScore,
+  };
 }

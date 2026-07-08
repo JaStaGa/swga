@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   calculateRoundScore,
+  canSubmitGuess,
+  createInitialRunState,
   evaluateGuess,
+  hasRoundEnded,
   isCorrectGuess,
   isValidAcceptedGuess,
   isValidGuessFormat,
+  submitGuess,
 } from "../game-logic/swga";
 
 describe("SWGA game logic", () => {
@@ -102,5 +106,167 @@ describe("SWGA game logic", () => {
     expect(isCorrectGuess("apple", "apple")).toBe(true);
     expect(isCorrectGuess("APPLE", "apple")).toBe(true);
     expect(isCorrectGuess("apple", "grape")).toBe(false);
+  });
+
+  it("creates the initial run state for round 1", () => {
+    const state = createInitialRunState("a");
+
+    expect(state.currentRound).toBe(1);
+    expect(state.currentWordLength).toBe(1);
+    expect(state.currentAnswer).toBe("a");
+    expect(state.guesses).toEqual([]);
+    expect(state.totalScore).toBe(0);
+    expect(state.status).toBe("playing");
+  });
+
+  it("throws when createInitialRunState is given a non-1-letter answer", () => {
+    expect(() => createInitialRunState("ab")).toThrowError(
+      "Initial run answer must be exactly 1 letter long.",
+    );
+  });
+
+  it("does not count invalid guesses as attempts", () => {
+    const state = createInitialRunState("a");
+    const nextState = submitGuess(state, "ab", ["a"]);
+
+    expect(nextState.guesses).toHaveLength(0);
+    expect(nextState.totalScore).toBe(0);
+    expect(canSubmitGuess(nextState)).toBe(true);
+    expect(hasRoundEnded(nextState)).toBe(false);
+  });
+
+  it("counts incorrect valid guesses", () => {
+    const state = createInitialRunState("a");
+    const nextState = submitGuess(state, "b", ["b"]);
+
+    expect(nextState.guesses).toHaveLength(1);
+    expect(nextState.guesses[0]?.guess).toBe("b");
+    expect(nextState.guesses[0]?.score).toBe(0);
+    expect(nextState.totalScore).toBe(0);
+  });
+
+  it("adds score for a correct guess", () => {
+    const state = {
+      ...createInitialRunState("a"),
+      currentRound: 20,
+      currentWordLength: 1,
+      currentAnswer: "a",
+    };
+    const nextState = submitGuess(state, "a", ["a"]);
+
+    expect(nextState.guesses[0]?.score).toBe(5);
+    expect(nextState.totalScore).toBe(5);
+    expect(nextState.status).toBe("completed");
+  });
+
+  it("advances to the next round after a correct guess when nextAnswer is supplied", () => {
+    const state = createInitialRunState("a");
+    const nextState = submitGuess(state, "a", ["a"], "ab");
+
+    expect(nextState.currentRound).toBe(2);
+    expect(nextState.currentWordLength).toBe(2);
+    expect(nextState.currentAnswer).toBe("ab");
+    expect(nextState.guesses).toEqual([]);
+    expect(nextState.status).toBe("playing");
+    expect(nextState.totalScore).toBe(5);
+  });
+
+  it("gives 0 points for a sixth correct guess but still advances", () => {
+    let state = createInitialRunState("a");
+
+    for (const guess of ["b", "c", "d", "e", "f"]) {
+      state = submitGuess(state, guess, [guess]);
+    }
+
+    const nextState = submitGuess(state, "a", ["a"], "ab");
+
+    expect(nextState.guesses).toEqual([]);
+    expect(nextState.totalScore).toBe(0);
+    expect(nextState.currentRound).toBe(2);
+  });
+
+  it("loses the run after six incorrect guesses", () => {
+    let state = createInitialRunState("a");
+
+    for (const guess of ["b", "c", "d", "e", "f", "g"]) {
+      state = submitGuess(state, guess, [guess]);
+    }
+
+    expect(state.status).toBe("lost");
+    expect(state.guesses).toHaveLength(6);
+    expect(canSubmitGuess(state)).toBe(false);
+  });
+
+  it("prevents submission once a round already has six guesses", () => {
+    const state = {
+      ...createInitialRunState("a"),
+      guesses: Array.from({ length: 6 }, (_, index) => ({
+        guess: "b",
+        feedback: [] as Array<"green" | "yellow" | "red">,
+        guessNumber: index + 1,
+        score: 0,
+      })),
+    };
+
+    expect(canSubmitGuess(state)).toBe(false);
+  });
+
+  it("throws when a correct non-final-round guess has no nextAnswer", () => {
+    const state = createInitialRunState("a");
+
+    expect(() => submitGuess(state, "a", ["a"])).toThrowError(
+      "nextAnswer is required to advance to the next round",
+    );
+  });
+
+  it("throws when a correct non-final-round guess has a wrong-length nextAnswer", () => {
+    const state = createInitialRunState("a");
+
+    expect(() => submitGuess(state, "a", ["a"], "abc")).toThrowError(
+      "nextAnswer must have length 2 for round 2",
+    );
+  });
+
+  it("resets guesses when advancing to a new round and carries score forward", () => {
+    const roundOneState = createInitialRunState("a");
+    const roundTwoState = submitGuess(roundOneState, "a", ["a"], "to");
+    const roundThreeState = submitGuess(roundTwoState, "to", ["to"], "too");
+
+    expect(roundTwoState.guesses).toEqual([]);
+    expect(roundThreeState.currentRound).toBe(3);
+    expect(roundThreeState.currentWordLength).toBe(3);
+    expect(roundThreeState.currentAnswer).toBe("too");
+    expect(roundThreeState.guesses).toEqual([]);
+    expect(roundThreeState.totalScore).toBe(10);
+  });
+
+  it("marks the run as completed after round 20 is solved", () => {
+    const state = {
+      ...createInitialRunState("a"),
+      currentRound: 20,
+      currentWordLength: 5,
+      currentAnswer: "apple",
+    };
+    const nextState = submitGuess(state, "apple", ["apple"]);
+
+    expect(nextState.status).toBe("completed");
+    expect(nextState.totalScore).toBe(5);
+    expect(hasRoundEnded(nextState)).toBe(true);
+  });
+
+  it("prevents further guesses after the run is lost or completed", () => {
+    const lostState = {
+      ...createInitialRunState("a"),
+      status: "lost" as const,
+    };
+    const completedState = {
+      ...createInitialRunState("a"),
+      status: "completed" as const,
+    };
+
+    expect(canSubmitGuess(lostState)).toBe(false);
+    expect(canSubmitGuess(completedState)).toBe(false);
+    expect(submitGuess(lostState, "a", ["a"])).toEqual(lostState);
+    expect(submitGuess(completedState, "a", ["a"])).toEqual(completedState);
   });
 });
