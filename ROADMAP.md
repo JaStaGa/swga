@@ -30,7 +30,7 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 * [x] Build the green, yellow, and absent-letter feedback algorithm
 * [x] Process correctly positioned letters before misplaced letters
 * [x] Handle repeated-letter guesses correctly
-* [ ] Add tests for short words, long words, and duplicate letters
+* [x] Add tests for short words, long words, and duplicate letters
 * [x] Build the game-state and round-progression system
 * [x] Select and store the current answer
 * [x] Record submitted guesses
