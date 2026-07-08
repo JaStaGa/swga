@@ -18,25 +18,25 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 * [x] Establish the component, game-logic, data, and test folders
 * [x] Add the project roadmap
 * [x] Replace the default Vite README
-* [ ] Add answer pools for word lengths 1–20
-* [ ] Add a larger accepted-guess dictionary
-* [ ] Validate and clean all word data
-* [ ] Manually review production answer pools
+* [x] Add answer pools for word lengths 1–20
+* [x] Add a larger accepted-guess dictionary
+* [x] Validate and clean all word data
+* [x] Manually review starter answer pools
 
 ## Phase 2: Core Game Engine
 
 **Target: July 12–August 2, 2026**
 
-* [ ] Build the green, yellow, and absent-letter feedback algorithm
-* [ ] Process correctly positioned letters before misplaced letters
-* [ ] Handle repeated-letter guesses correctly
+* [x] Build the green, yellow, and absent-letter feedback algorithm
+* [x] Process correctly positioned letters before misplaced letters
+* [x] Handle repeated-letter guesses correctly
 * [ ] Add tests for short words, long words, and duplicate letters
 * [ ] Build the game-state and round-progression system
 * [ ] Select and store the current answer
 * [ ] Record submitted guesses
 * [ ] Advance from one-letter words through 20-letter words
 * [ ] End a run after six unsuccessful guesses
-* [ ] Implement the 5, 4, 3, 2, 1, and 0-point scoring system
+* [x] Implement the 5, 4, 3, 2, 1, and 0-point scoring system
 * [ ] Track total score and highest level reached
 * [ ] Add completion behavior after the 20-letter round
 
@@ -149,8 +149,19 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 
 ## Current Development Focus
 
-The current milestone is completing the remaining Phase 1 repository setup:
+The current milestone is Phase 2: building the core game engine.
 
-1. Replace the default Vite README.
-2. Commit and push the roadmap and README.
-3. Begin preparing and validating the word data.
+Recently completed:
+
+1. Populated answer and accepted-guess word data for lengths 1–20.
+2. Added automated word-data validation.
+3. Manually reviewed the starter answer pools.
+4. Implemented the core letter-feedback algorithm.
+5. Implemented scoring logic.
+6. Added automated tests for feedback, duplicate-letter behavior, scoring, guess-format validation, and accepted-guess validation.
+
+Next tasks:
+
+1. Add at least one explicit long-word feedback test.
+2. Build the game-state and round-progression system.
+3. Test invalid guesses, six-guess losses, score accumulation, round advancement, and completion after round 20.
