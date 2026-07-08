@@ -31,14 +31,14 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 * [x] Process correctly positioned letters before misplaced letters
 * [x] Handle repeated-letter guesses correctly
 * [ ] Add tests for short words, long words, and duplicate letters
-* [ ] Build the game-state and round-progression system
-* [ ] Select and store the current answer
-* [ ] Record submitted guesses
-* [ ] Advance from one-letter words through 20-letter words
-* [ ] End a run after six unsuccessful guesses
+* [x] Build the game-state and round-progression system
+* [x] Select and store the current answer
+* [x] Record submitted guesses
+* [x] Advance from one-letter words through 20-letter words
+* [x] End a run after six unsuccessful guesses
 * [x] Implement the 5, 4, 3, 2, 1, and 0-point scoring system
 * [ ] Track total score and highest level reached
-* [ ] Add completion behavior after the 20-letter round
+* [x] Add completion behavior after the 20-letter round
 
 ## Phase 3: Playable Interface
 
@@ -149,7 +149,7 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 
 ## Current Development Focus
 
-The current milestone is Phase 2: building the core game engine.
+The current milestone is Phase 2: finishing the core game engine.
 
 Recently completed:
 
@@ -159,9 +159,11 @@ Recently completed:
 4. Implemented the core letter-feedback algorithm.
 5. Implemented scoring logic.
 6. Added automated tests for feedback, duplicate-letter behavior, scoring, guess-format validation, and accepted-guess validation.
+7. Implemented the run-state and round-progression system.
+8. Added automated tests for invalid guesses, six-guess losses, score accumulation, round advancement, and completion after round 20.
 
 Next tasks:
 
 1. Add at least one explicit long-word feedback test.
-2. Build the game-state and round-progression system.
-3. Test invalid guesses, six-guess losses, score accumulation, round advancement, and completion after round 20.
+2. Track highest level reached / highest word length reached.
+3. Clean up any remaining game-logic edge cases before connecting the logic to the UI.
