@@ -70,6 +70,34 @@ describe("SWGA game logic", () => {
     ]);
   });
 
+  it("returns a single red result for a 1-letter word mismatch", () => {
+    expect(evaluateGuess("a", "b")).toEqual(["red"]);
+  });
+
+  it("returns yellow feedback for a 2-letter word with swapped letters", () => {
+    expect(evaluateGuess("ab", "ba")).toEqual(["yellow", "yellow"]);
+  });
+
+  it("returns mixed feedback for a long word with green, yellow, and red results", () => {
+    expect(evaluateGuess("abcdefghijklmno", "abcxydfghijklmn")).toEqual([
+      "green",
+      "green",
+      "green",
+      "yellow",
+      "red",
+      "yellow",
+      "yellow",
+      "yellow",
+      "yellow",
+      "yellow",
+      "yellow",
+      "yellow",
+      "yellow",
+      "yellow",
+      "red",
+    ]);
+  });
+
   it("returns the correct score for guesses 1 through 6", () => {
     expect(calculateRoundScore(1)).toBe(5);
     expect(calculateRoundScore(2)).toBe(4);
