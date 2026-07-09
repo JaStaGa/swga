@@ -14,6 +14,7 @@ export interface RunState {
   currentAnswer: string;
   guesses: SubmittedGuess[];
   totalScore: number;
+  highestWordLengthReached: number;
   status: RunStatus;
 }
 
@@ -110,6 +111,7 @@ export function createInitialRunState(answer: string): RunState {
     currentAnswer: normalizedAnswer,
     guesses: [],
     totalScore: 0,
+    highestWordLengthReached: normalizedAnswer.length,
     status: "playing",
   };
 }
@@ -146,20 +148,26 @@ export function submitGuess(
   const isCorrect = isCorrectGuess(normalizedGuess, state.currentAnswer);
   const roundScore = calculateRoundScore(guessNumber) ?? 0;
 
+  let normalizedNextAnswer = "";
+  let nextAnswerLength = state.currentWordLength;
+
   if (isCorrect && state.currentRound < 20) {
     if (nextAnswer === undefined) {
       throw new Error("nextAnswer is required to advance to the next round");
     }
 
     const expectedLength = state.currentRound + 1;
-    const normalizedNextAnswer = normalizeGuess(nextAnswer);
+    normalizedNextAnswer = normalizeGuess(nextAnswer);
 
     if (normalizedNextAnswer.length !== expectedLength) {
       throw new Error(
         `nextAnswer must have length ${expectedLength} for round ${state.currentRound + 1}`,
       );
     }
+
+    nextAnswerLength = normalizedNextAnswer.length;
   }
+
   const score = isCorrect ? roundScore : 0;
   const submittedGuess: SubmittedGuess = {
     guess: normalizedGuess,
@@ -177,16 +185,18 @@ export function submitGuess(
         ...state,
         guesses: updatedGuesses,
         totalScore: updatedScore,
+        highestWordLengthReached: state.currentWordLength,
         status: "completed",
       };
     }
 
     return {
       currentRound: state.currentRound + 1,
-      currentWordLength: normalizeGuess(nextAnswer ?? "").length,
-      currentAnswer: normalizeGuess(nextAnswer ?? ""),
+      currentWordLength: nextAnswerLength,
+      currentAnswer: normalizedNextAnswer,
       guesses: [],
       totalScore: updatedScore,
+      highestWordLengthReached: Math.max(state.highestWordLengthReached, nextAnswerLength),
       status: "playing",
     };
   }

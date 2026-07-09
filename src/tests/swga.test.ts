@@ -144,7 +144,57 @@ describe("SWGA game logic", () => {
     expect(state.currentAnswer).toBe("a");
     expect(state.guesses).toEqual([]);
     expect(state.totalScore).toBe(0);
+    expect(state.highestWordLengthReached).toBe(1);
     expect(state.status).toBe("playing");
+  });
+
+  it("updates highestWordLengthReached when advancing from round 1 to round 2", () => {
+    const roundOneState = createInitialRunState("a");
+    const roundTwoState = submitGuess(roundOneState, "a", ["a"], "to");
+
+    expect(roundTwoState.currentRound).toBe(2);
+    expect(roundTwoState.highestWordLengthReached).toBe(2);
+  });
+
+  it("updates highestWordLengthReached across multiple round advances", () => {
+    let state = createInitialRunState("a");
+    state = submitGuess(state, "a", ["a"], "to");
+    state = submitGuess(state, "to", ["to"], "too");
+
+    expect(state.currentRound).toBe(3);
+    expect(state.highestWordLengthReached).toBe(3);
+  });
+
+  it("preserves highestWordLengthReached when a run is lost", () => {
+    let state = createInitialRunState("a");
+    state = submitGuess(state, "a", ["a"], "to");
+    state = submitGuess(state, "to", ["to"], "too");
+
+    state = {
+      ...state,
+      highestWordLengthReached: 3,
+    };
+
+    for (const guess of ["bbb", "ccc", "ddd", "eee", "fff", "ggg"]) {
+      state = submitGuess(state, guess, [guess]);
+    }
+
+    expect(state.status).toBe("lost");
+    expect(state.highestWordLengthReached).toBe(3);
+  });
+
+  it("preserves highestWordLengthReached when round 20 is completed", () => {
+    const state = {
+      ...createInitialRunState("a"),
+      currentRound: 20,
+      currentWordLength: 20,
+      currentAnswer: "abcdefghijklmnopqrst",
+      highestWordLengthReached: 20,
+    };
+    const nextState = submitGuess(state, "abcdefghijklmnopqrst", ["abcdefghijklmnopqrst"]);
+
+    expect(nextState.status).toBe("completed");
+    expect(nextState.highestWordLengthReached).toBe(20);
   });
 
   it("throws when createInitialRunState is given a non-1-letter answer", () => {
