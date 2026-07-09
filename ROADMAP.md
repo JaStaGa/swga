@@ -37,7 +37,7 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 * [x] Advance from one-letter words through 20-letter words
 * [x] End a run after six unsuccessful guesses
 * [x] Implement the 5, 4, 3, 2, 1, and 0-point scoring system
-* [ ] Track total score and highest level reached
+* [x] Track total score and highest level reached
 * [x] Add completion behavior after the 20-letter round
 
 ## Phase 3: Playable Interface
