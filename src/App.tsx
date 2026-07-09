@@ -19,6 +19,7 @@ function App() {
   const [runState, setRunState] = useState<RunState>(() => createInitialRunState(getInitialAnswer()))
   const [guessInput, setGuessInput] = useState('')
   const [statusMessage, setStatusMessage] = useState('Enter a guess for the current round.')
+  const [statusTone, setStatusTone] = useState<'info' | 'success' | 'warning'>('info')
 
   const currentAcceptedGuesses = Array.from(
     new Set([runState.currentAnswer, ...getAcceptedGuessesForWordLength(runState.currentWordLength)]),
@@ -31,6 +32,7 @@ function App() {
 
     if (!canSubmit) {
       setStatusMessage('The run is already over.')
+      setStatusTone('warning')
       return
     }
 
@@ -38,16 +40,19 @@ function App() {
 
     if (!normalizedGuess) {
       setStatusMessage('Please enter a guess before submitting.')
+      setStatusTone('warning')
       return
     }
 
     if (!isValidGuessFormat(normalizedGuess, runState.currentWordLength)) {
-      setStatusMessage('That guess is not the correct length for this round.')
+      setStatusMessage(`Use exactly ${runState.currentWordLength} lowercase letters for this round.`)
+      setStatusTone('warning')
       return
     }
 
     if (!isValidAcceptedGuess(normalizedGuess, currentAcceptedGuesses)) {
-      setStatusMessage('That guess is not accepted for this round.')
+      setStatusMessage('That word is not in the accepted word bank for this round.')
+      setStatusTone('warning')
       return
     }
 
@@ -60,12 +65,16 @@ function App() {
 
     if (nextState.status === 'completed') {
       setStatusMessage('You completed the full run!')
+      setStatusTone('success')
     } else if (nextState.status === 'lost') {
       setStatusMessage('No more guesses remain. The run is over.')
+      setStatusTone('warning')
     } else if (wasCorrect) {
-      setStatusMessage(`Correct! Advancing to round ${nextState.currentRound}.`)
+      setStatusMessage(`Correct! You advance to round ${nextState.currentRound} with a ${nextState.currentWordLength}-letter word.`)
+      setStatusTone('success')
     } else {
       setStatusMessage(`Not quite. ${guessesRemaining - 1} guesses remaining.`)
+      setStatusTone('info')
     }
   }
 
@@ -73,6 +82,7 @@ function App() {
     setRunState(createInitialRunState(getInitialAnswer()))
     setGuessInput('')
     setStatusMessage('A fresh run begins. Enter your first guess.')
+    setStatusTone('info')
   }
 
   return (
@@ -88,25 +98,25 @@ function App() {
           </button>
         </div>
 
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-label">Round</span>
+        <div className="stats-row">
+          <div className="stat-pill">
+            <span>Round</span>
             <strong>{runState.currentRound}</strong>
           </div>
-          <div className="stat-card">
-            <span className="stat-label">Word length</span>
+          <div className="stat-pill">
+            <span>Word length</span>
             <strong>{runState.currentWordLength}</strong>
           </div>
-          <div className="stat-card">
-            <span className="stat-label">Score</span>
+          <div className="stat-pill">
+            <span>Score</span>
             <strong>{runState.totalScore}</strong>
           </div>
-          <div className="stat-card">
-            <span className="stat-label">Highest reached</span>
+          <div className="stat-pill">
+            <span>Highest</span>
             <strong>{runState.highestWordLengthReached}</strong>
           </div>
-          <div className="stat-card">
-            <span className="stat-label">Guesses left</span>
+          <div className="stat-pill">
+            <span>Guesses left</span>
             <strong>{guessesRemaining}</strong>
           </div>
         </div>
@@ -132,7 +142,7 @@ function App() {
           </div>
         </form>
 
-        <div className="status-box" aria-live="polite">
+        <div className={`status-box ${statusTone}`} aria-live="polite">
           <strong>Status</strong>
           <p>{statusMessage}</p>
         </div>
@@ -146,7 +156,7 @@ function App() {
               {runState.guesses.map((submittedGuess) => (
                 <div className="guess-card" key={`${submittedGuess.guess}-${submittedGuess.guessNumber}`}>
                   <div className="guess-label">{submittedGuess.guess}</div>
-                  <div className="feedback-row">
+                  <div className="feedback-row" aria-label={`${submittedGuess.guess} feedback`}>
                     {submittedGuess.feedback.map((feedback, index) => (
                       <span
                         className={`feedback-cell ${feedback}`}
