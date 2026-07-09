@@ -149,21 +149,22 @@ The detailed Google Doc TODO remains the source of truth for individual tasks an
 
 ## Current Development Focus
 
-The current milestone is Phase 2: finishing the core game engine.
+The current milestone is Phase 3: building the playable interface.
 
 Recently completed:
 
-1. Populated answer and accepted-guess word data for lengths 1–20.
-2. Added automated word-data validation.
-3. Manually reviewed the starter answer pools.
-4. Implemented the core letter-feedback algorithm.
-5. Implemented scoring logic.
-6. Added automated tests for feedback, duplicate-letter behavior, scoring, guess-format validation, and accepted-guess validation.
-7. Implemented the run-state and round-progression system.
-8. Added automated tests for invalid guesses, six-guess losses, score accumulation, round advancement, and completion after round 20.
+1. Completed Phase 1 rules, repository setup, and word-data preparation.
+2. Implemented and tested the core letter-feedback algorithm.
+3. Implemented and tested scoring logic.
+4. Implemented and tested run-state and round-progression logic.
+5. Added short-word, long-word, and duplicate-letter feedback tests.
+6. Added total score and highest word length tracking.
+7. Confirmed the full Phase 2 checkpoint with test, word-data validation, build, and lint checks.
 
 Next tasks:
 
-1. Add at least one explicit long-word feedback test.
-2. Track highest level reached / highest word length reached.
-3. Clean up any remaining game-logic edge cases before connecting the logic to the UI.
+1. Connect the existing game logic to a basic playable React interface.
+2. Display the current word length, round, score, and remaining guesses.
+3. Add a simple input box and submit button.
+4. Render submitted guesses with green, yellow, and red feedback.
+5. Support advancing from one-letter words into longer rounds.
