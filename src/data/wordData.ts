@@ -88,16 +88,30 @@ const acceptedGuessPools: readonly string[][] = [
   acceptedGuesses20,
 ];
 
-export function getInitialAnswer(): string {
-  return getAnswerForRound(1) ?? 'a';
+export function getInitialAnswer(random: () => number = Math.random): string {
+  return getAnswerForRound(1, random) ?? 'a';
 }
 
-export function getAnswerForRound(roundNumber: number): string | undefined {
+export function getAnswerForRound(
+  roundNumber: number,
+  random: () => number = Math.random,
+): string | undefined {
   if (roundNumber < MIN_WORD_LENGTH || roundNumber > MAX_WORD_LENGTH) {
     return undefined;
   }
 
-  return answerPools[roundNumber - 1]?.[0];
+  const answerPool = answerPools[roundNumber - 1];
+
+  if (!answerPool?.length) {
+    return undefined;
+  }
+
+  const answerIndex = Math.min(
+    Math.floor(random() * answerPool.length),
+    answerPool.length - 1,
+  );
+
+  return answerPool[answerIndex];
 }
 
 export function getAcceptedGuessesForWordLength(wordLength: number): string[] {

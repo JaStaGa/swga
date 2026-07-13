@@ -57,7 +57,9 @@ function App() {
     }
 
     const wasCorrect = isCorrectGuess(normalizedGuess, runState.currentAnswer)
-    const nextAnswer = getAnswerForRound(runState.currentRound + 1)
+    const nextAnswer = wasCorrect
+      ? getAnswerForRound(runState.currentRound + 1)
+      : undefined
     const nextState = submitGuess(runState, normalizedGuess, currentAcceptedGuesses, nextAnswer)
 
     setRunState(nextState)
