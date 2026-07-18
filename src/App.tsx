@@ -102,9 +102,11 @@ function App() {
             <p className="eyebrow">Playable MVP</p>
             <h1>SWGA</h1>
           </div>
-          <button type="button" className="secondary-button" onClick={handleRestart}>
-            Restart
-          </button>
+          {runState.status === 'playing' && (
+            <button type="button" className="secondary-button" onClick={handleRestart}>
+              Restart
+            </button>
+          )}
         </div>
 
         <div className="stats-row">
@@ -130,56 +132,91 @@ function App() {
           </div>
         </div>
 
-        <form className="guess-form" onSubmit={handleSubmit}>
-          <label className="input-label" htmlFor="guess-input">
-            Enter your guess
-          </label>
-          <div className="input-row">
-            <input
-              id="guess-input"
-              className="guess-input"
-              value={guessInput}
-              onChange={(event) => setGuessInput(event.target.value)}
-              placeholder={`Enter a ${runState.currentWordLength}-letter guess`}
-              disabled={!canSubmit}
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <button type="submit" className="primary-button" disabled={!canSubmit}>
-              Submit
-            </button>
-          </div>
-        </form>
+        {runState.status === 'playing' ? (
+          <>
+            <form className="guess-form" onSubmit={handleSubmit}>
+              <label className="input-label" htmlFor="guess-input">
+                Enter your guess
+              </label>
+              <div className="input-row">
+                <input
+                  id="guess-input"
+                  className="guess-input"
+                  value={guessInput}
+                  onChange={(event) => setGuessInput(event.target.value)}
+                  placeholder={`Enter a ${runState.currentWordLength}-letter guess`}
+                  disabled={!canSubmit}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                <button type="submit" className="primary-button" disabled={!canSubmit}>
+                  Submit
+                </button>
+              </div>
+            </form>
 
-        <div className={`status-box ${statusTone}`} aria-live="polite">
-          <strong>Status</strong>
-          <p>{statusMessage}</p>
-        </div>
-
-        <div className="guess-history">
-          <h2>Current round guesses</h2>
-          {runState.guesses.length === 0 ? (
-            <p className="empty-state">No guesses yet. Start the round with a valid word.</p>
-          ) : (
-            <div className="guess-list">
-              {runState.guesses.map((submittedGuess) => (
-                <div className="guess-card" key={`${submittedGuess.guess}-${submittedGuess.guessNumber}`}>
-                  <div className="guess-label">{submittedGuess.guess}</div>
-                  <div className="feedback-row" aria-label={`${submittedGuess.guess} feedback`}>
-                    {submittedGuess.feedback.map((feedback, index) => (
-                      <span
-                        className={`feedback-cell ${feedback}`}
-                        key={`${submittedGuess.guess}-${submittedGuess.guessNumber}-${index}`}
-                      >
-                        {submittedGuess.guess[index]}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className={`status-box ${statusTone}`} aria-live="polite">
+              <strong>Status</strong>
+              <p>{statusMessage}</p>
             </div>
-          )}
-        </div>
+
+            <div className="guess-history">
+              <h2>Current round guesses</h2>
+              {runState.guesses.length === 0 ? (
+                <p className="empty-state">No guesses yet. Start the round with a valid word.</p>
+              ) : (
+                <div className="guess-list">
+                  {runState.guesses.map((submittedGuess) => (
+                    <div className="guess-card" key={`${submittedGuess.guess}-${submittedGuess.guessNumber}`}>
+                      <div className="guess-label">{submittedGuess.guess}</div>
+                      <div className="feedback-row" aria-label={`${submittedGuess.guess} feedback`}>
+                        {submittedGuess.feedback.map((feedback, index) => (
+                          <span
+                            className={`feedback-cell ${feedback}`}
+                            key={`${submittedGuess.guess}-${submittedGuess.guessNumber}-${index}`}
+                          >
+                            {submittedGuess.guess[index]}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <section className={`results-section ${runState.status}`} aria-live="polite">
+            <p className="results-eyebrow">Final result</p>
+            <h2>{runState.status === 'completed' ? 'Run Complete' : 'Run Over'}</h2>
+            <p className="results-message">
+              {runState.status === 'completed'
+                ? 'You completed all 20 rounds.'
+                : 'A strong run—take what you learned into the next one.'}
+            </p>
+
+            <div className="results-stats">
+              <div className="result-stat">
+                <span>Final score</span>
+                <strong>{runState.totalScore}</strong>
+              </div>
+              <div className="result-stat">
+                <span>Highest round reached</span>
+                <strong>{runState.highestWordLengthReached}</strong>
+              </div>
+            </div>
+
+            {runState.status === 'lost' && (
+              <p className="results-answer">
+                The word was <strong>&quot;{runState.currentAnswer.toUpperCase()}&quot;</strong>.
+              </p>
+            )}
+
+            <button type="button" className="primary-button play-again-button" onClick={handleRestart}>
+              Play Again
+            </button>
+          </section>
+        )}
       </section>
     </main>
   )
