@@ -76,7 +76,7 @@ function App() {
       setStatusMessage('You completed the full run!')
       setStatusTone('success')
     } else if (nextState.status === 'lost') {
-      setStatusMessage('No more guesses remain. The run is over.')
+      setStatusMessage(`No more guesses remain. The word was "${runState.currentAnswer.toUpperCase()}".`)
       setStatusTone('warning')
     } else if (wasCorrect) {
       setStatusMessage(`Correct! You advance to round ${nextState.currentRound} with a ${nextState.currentWordLength}-letter word.`)
