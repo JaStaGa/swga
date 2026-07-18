@@ -4,6 +4,7 @@ import {
   canSubmitGuess,
   createInitialRunState,
   isCorrectGuess,
+  isRepeatedGuess,
   isValidAcceptedGuess,
   isValidGuessFormat,
   submitGuess,
@@ -52,6 +53,12 @@ function App() {
 
     if (!isValidAcceptedGuess(normalizedGuess, currentAcceptedGuesses)) {
       setStatusMessage('That word is not in the accepted word bank for this round.')
+      setStatusTone('warning')
+      return
+    }
+
+    if (isRepeatedGuess(runState, normalizedGuess)) {
+      setStatusMessage('You already guessed that word.')
       setStatusTone('warning')
       return
     }

@@ -7,6 +7,7 @@ import {
   evaluateGuess,
   hasRoundEnded,
   isCorrectGuess,
+  isRepeatedGuess,
   isValidAcceptedGuess,
   isValidGuessFormat,
   submitGuess,
@@ -221,6 +222,26 @@ describe("SWGA game logic", () => {
     expect(nextState.guesses[0]?.guess).toBe("b");
     expect(nextState.guesses[0]?.score).toBe(0);
     expect(nextState.totalScore).toBe(0);
+  });
+
+  it("rejects an exact duplicate without changing the run state", () => {
+    const state = submitGuess(createInitialRunState("a"), "b", ["b"]);
+    const nextState = submitGuess(state, "b", ["b"]);
+
+    expect(isRepeatedGuess(state, "b")).toBe(true);
+    expect(nextState).toBe(state);
+    expect(nextState.guesses).toHaveLength(1);
+  });
+
+  it("rejects a case-variant duplicate without counting another attempt", () => {
+    const state = submitGuess(createInitialRunState("a"), "b", ["b"]);
+    const guessesRemaining = 6 - state.guesses.length;
+    const nextState = submitGuess(state, "B", ["b"]);
+
+    expect(isRepeatedGuess(state, "B")).toBe(true);
+    expect(nextState).toBe(state);
+    expect(6 - nextState.guesses.length).toBe(guessesRemaining);
+    expect(nextState.totalScore).toBe(state.totalScore);
   });
 
   it("adds score for a correct guess", () => {

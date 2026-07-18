@@ -98,6 +98,14 @@ export function isValidAcceptedGuess(
   );
 }
 
+export function isRepeatedGuess(state: RunState, guess: string): boolean {
+  const normalizedGuess = normalizeGuess(guess);
+
+  return state.guesses.some(
+    (submittedGuess) => normalizeGuess(submittedGuess.guess) === normalizedGuess,
+  );
+}
+
 export function createInitialRunState(answer: string): RunState {
   const normalizedAnswer = normalizeGuess(answer);
 
@@ -131,6 +139,10 @@ export function submitGuess(
   nextAnswer?: string,
 ): RunState {
   if (!canSubmitGuess(state)) {
+    return state;
+  }
+
+  if (isRepeatedGuess(state, guess)) {
     return state;
   }
 
