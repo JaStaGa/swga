@@ -15,9 +15,27 @@ import {
   getAnswerForRound,
   getInitialAnswer,
 } from './data/wordData'
+import {
+  getUpdatedHighScore,
+  HIGH_SCORE_STORAGE_KEY,
+  parseStoredHighScore,
+} from './high-score'
+
+function getInitialHighScore(): number {
+  if (typeof window === 'undefined') {
+    return 0
+  }
+
+  try {
+    return parseStoredHighScore(window.localStorage.getItem(HIGH_SCORE_STORAGE_KEY))
+  } catch {
+    return 0
+  }
+}
 
 function App() {
   const [runState, setRunState] = useState<RunState>(() => createInitialRunState(getInitialAnswer()))
+  const [highScore, setHighScore] = useState(getInitialHighScore)
   const [guessInput, setGuessInput] = useState('')
   const [statusMessage, setStatusMessage] = useState('Enter a guess for the current round.')
   const [statusTone, setStatusTone] = useState<'info' | 'success' | 'warning'>('info')
@@ -71,6 +89,20 @@ function App() {
 
     setRunState(nextState)
     setGuessInput('')
+
+    if (nextState.status === 'lost' || nextState.status === 'completed') {
+      const updatedHighScore = getUpdatedHighScore(highScore, nextState.totalScore)
+
+      if (updatedHighScore > highScore) {
+        setHighScore(updatedHighScore)
+
+        try {
+          window.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(updatedHighScore))
+        } catch {
+          // Keep the in-memory value available when storage is unavailable.
+        }
+      }
+    }
 
     if (nextState.status === 'completed') {
       setStatusMessage('You completed the full run!')
@@ -130,6 +162,12 @@ function App() {
             <span>Guesses left</span>
             <strong>{guessesRemaining}</strong>
           </div>
+          {runState.status === 'playing' && (
+            <div className="stat-pill">
+              <span>Best score:</span>
+              <strong>{highScore}</strong>
+            </div>
+          )}
         </div>
 
         {runState.status === 'playing' ? (
@@ -211,6 +249,10 @@ function App() {
                 The word was <strong>&quot;{runState.currentAnswer.toUpperCase()}&quot;</strong>.
               </p>
             )}
+
+            <p className="results-best-score">
+              Best score: <strong>{highScore}</strong>
+            </p>
 
             <button type="button" className="primary-button play-again-button" onClick={handleRestart}>
               Play Again
