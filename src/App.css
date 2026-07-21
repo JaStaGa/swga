@@ -245,11 +245,6 @@ h2 {
   background: rgba(248, 113, 113, 0.12);
 }
 
-.results-best-score {
-  margin: 0;
-  color: #e2e8f0;
-}
-
 .play-again-button {
   min-width: 180px;
   padding: 13px 24px;
